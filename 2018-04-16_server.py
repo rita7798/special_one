@@ -5,35 +5,33 @@ import json
 import urllib.request
 import re
 import key
-from collections import OrderedDict
 
+
+COUNT = 10
 
 def posts():
-    req = urllib.request.Request('https://api.vk.com/method/wall.get?owner_id=-112510789&count=10&v=5.73&access_token={}'.format(key.access))
+    req = urllib.request.Request('https://api.vk.com/method/wall.get?owner_id=-112510789&count={}&v=5.73&access_token={}'.format(COUNT, key.access))
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
     data = json.loads(html) 
-    for i in range(10):
-        with open ('corpora.txt', 'a', encoding='utf-8') as f:
+    for i in range(COUNT):
+        with open ('corp.txt', 'a', encoding='utf-8') as f:
             f.write(data["response"]["items"][i]['text'])
 
 
 def dictionary():
-    punct = []
     d = {}
-    with open ('corpora.txt', 'r', encoding='utf-8') as f:
+    with open ('corp.txt', 'r', encoding='utf-8') as f:
         text = f.read().lower()
         new_text = re.sub('[\.\?\!…\(\)\-\—\,\"–]', ' ', text)
     for word in new_text.split():
         if word not in d:
-            d.update({word:1})
+            d[word] = 1
         else:
-            key = word
-            d.update({key:d[key]+1})
-    d = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
+            d[word] += 1
     with open ('dictionary.tsv', 'a', encoding='utf-8') as f:
-        for k,v in d.items():
-            f.write("{}\t{}".format(k,v) + "\n")
+        for k in sorted(d, key = d.get, reverse=True):
+            f.write("{}\t{}".format(k,d[k]) + "\n")
 
 
 def main():
@@ -43,4 +41,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
