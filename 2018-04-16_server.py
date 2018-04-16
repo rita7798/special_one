@@ -31,6 +31,9 @@ def dictionary():
             key = word
             d.update({key:d[key]+1})
     d = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
+    with open ('dictionary.tsv', 'a', encoding='utf-8') as f:
+        for k,v in d.items():
+            f.write("{}\t{}".format(k,v) + "\n")
 
 
 def main():
